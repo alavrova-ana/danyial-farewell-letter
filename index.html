@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dear Danyial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400;1,700&family=Caveat:wght@500&family=Allura&display=swap" rel="stylesheet">
+<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro-on')</script>
+<style>
+  :root {
+    --ink: #1f1f1f;
+    --ink-title: #252525;
+    --sky-top: #d0f0ff;
+    --sky-mid: #9bdcf8;
+    --sky-bottom: #cbefff;
+    --photo-shadow: 0 4px 20px rgba(141, 175, 191, .5);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Poppins', system-ui, sans-serif;
+    color: var(--ink);
+    background: #dfeaec;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ---------- mesh gradient background (fixed, drifting blobs + film grain) ---------- */
+  .bg { position: fixed; top: 0; left: 0; width: 100%; height: var(--bgh, 100vh); z-index: 0; pointer-events: none; overflow: hidden; background: #e4eeee; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(70px); will-change: transform; }
+  .blob.blue   { width: 60vmax; height: 50vmax; background: #7fb6dc; left: -20vmax; top: 8vh;  animation: drift1 24s ease-in-out infinite alternate; }
+  .blob.blue2  { width: 55vmax; height: 45vmax; background: #86b9dd; right: -15vmax; top: 45vh; animation: drift2 28s ease-in-out infinite alternate; }
+  .blob.yellow { width: 45vmax; height: 40vmax; background: #d4de45; right: -12vmax; bottom: -14vmax; animation: drift2 26s ease-in-out infinite alternate-reverse; }
+  .blob.lime   { width: 35vmax; height: 35vmax; background: #c9d870; left: -14vmax; top: 50vh; animation: drift1 30s ease-in-out infinite alternate-reverse; }
+  .blob.white  { width: 55vmax; height: 40vmax; background: #f4f6f4; left: 12vw; top: -12vmax; animation: drift2 32s ease-in-out infinite alternate; }
+  .blob.white2 { width: 50vmax; height: 35vmax; background: #f0f4f2; left: -10vmax; bottom: -10vmax; animation: drift1 34s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(8vw, -6vh) scale(1.12); } }
+  @keyframes drift2 { to { transform: translate(-9vw, 7vh) scale(.92); } }
+  .grain {
+    position: absolute; inset: 0; opacity: .55; mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.6 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  @media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
+
+  /* ---------- intro: envelope that opens on scroll ---------- */
+  .intro-ui { display: none; }
+  html.intro-on:not(.intro-done) .intro-ui { display: block; }
+  .st-bg {
+    position: fixed; inset: 0; z-index: 1; opacity: var(--bgo, 1);
+    background: #4f6a3a url('assets/intro-bg.jpg') center / cover no-repeat;
+  }
+  .st-bg::after {
+    content: ''; position: absolute; inset: 0; opacity: .2; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.6 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .st-title, .st-hint { position: fixed; left: 0; right: 0; z-index: 5; text-align: center; color: #fff; text-shadow: 0 2px 20px rgba(20, 40, 15, .55); opacity: var(--to, 1); pointer-events: none; }
+  .st-title {
+    bottom: calc(100% - var(--ty, 0px) + 28px); margin: 0 auto; width: min(90vw, 9em);
+    font-family: 'Allura', cursive; font-weight: 400; font-size: clamp(52px, 7.2vw, 104px); line-height: 1;
+  }
+  .st-hint { top: calc(var(--ty, 0px) + var(--teh, 0px) + 36px); font-family: 'Allura', cursive; font-size: clamp(30px, 3.2vw, 44px); }
+  .st-hint span { display: block; font-style: normal; font-size: .9em; margin-top: 2px; animation: bob 2.2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(6px); } }
+  .env-back, .env-front, .flap {
+    position: fixed; left: var(--ex, 0px); top: calc(var(--ey, 0px) + var(--edy, 0px)); width: var(--ew, 0px);
+    opacity: var(--eo, 1); pointer-events: none;
+  }
+  .env-back  { height: var(--eh, 0px); z-index: 2; background: #d3c7b6; border-radius: 3px; box-shadow: 0 30px 70px rgba(15, 30, 15, .4); }
+  .env-front {
+    height: var(--eh, 0px); z-index: 4; background: linear-gradient(180deg, #eee5d9, #e5dacb);
+    clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
+  }
+  .env-front::after {
+    content: '\2731'; position: absolute; left: 50%; top: 70%; transform: translate(-50%, -50%);
+    font-size: calc(var(--ew, 0px) * .085); color: #1f1f1f; line-height: 1;
+  }
+  .flap {
+    height: calc(var(--eh, 0px) * .5); z-index: var(--fz, 6); background: var(--fc, #e4dacc);
+    transform-origin: 50% 0; transform: perspective(1400px) rotateX(var(--fa, 0deg));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  #runway { height: 0; }
+  html.intro-on:not(.intro-done) #window { position: fixed; z-index: 3; overflow: hidden; box-shadow: 0 12px 40px rgba(10, 25, 10, .35); visibility: hidden; }
+  html.intro-ready:not(.intro-done) #window { visibility: visible; }
+  html.intro-on:not(.intro-done) #scaler { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+
+  /* ---------- layout ---------- */
+  main { position: relative; z-index: 1; }
+
+  .hero {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+    gap: 42px; padding: 100px 24px 80px;   /* 80px here + 80px row padding = same gap as between photo sections */
+    max-width: 916px; margin: 0 auto;
+    color: var(--ink-title);
+  }
+  .hero .to, .hero .intro { font-family: 'Allura', cursive; font-style: normal; font-weight: 400; font-size: 56px; line-height: 1.2; }
+  .hero .intro { font-size: 32px; text-align: center; text-wrap: balance; }
+
+  .note-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: clamp(40px, 8vw, 120px);
+    max-width: 1337px; margin: 0 auto;
+    padding: 80px 32px;
+  }
+  .note-row.flip { flex-direction: row-reverse; }
+
+  /* ---------- photo collage ----------
+     <photo-collage variant="3a|3b|2a|2b"><img src=""><img src=""><img src=""></photo-collage>
+     3a / 3b = three photos, 2a / 2b = two photos. Each is a different composition. */
+  photo-collage { position: relative; display: block; width: 615px; height: 680px; flex: none; }
+  photo-collage .photo {
+    position: absolute; background: #fff; border: 4px solid #fff; border-radius: 8px;
+    box-shadow: var(--photo-shadow); overflow: hidden;
+    transform: rotate(var(--r, 0deg));
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  photo-collage .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  photo-collage .photo:hover { transform: rotate(var(--r, 0deg)) scale(1.04); z-index: 5; }
+  /* layout = size (w h), position (x y), rotation (r) per photo */
+  .photo { width: var(--w); height: var(--h); left: var(--x); top: var(--y); }
+
+  /* 3a: two small on top-left, big on the right, one tall bottom-left (Figma) */
+  photo-collage[variant="3a"] .photo:nth-child(1) { --w:185px; --h:247px; --x:137px; --y:17px;  --r:-6.3deg; }
+  photo-collage[variant="3a"] .photo:nth-child(2) { --w:249px; --h:372px; --x:72px;  --y:298px; --r:-4.91deg; }
+  photo-collage[variant="3a"] .photo:nth-child(3) { --w:309px; --h:412px; --x:286px; --y:56px;  --r:5.75deg; }
+  /* 3b: big on the left, small top-right, medium bottom-right */
+  photo-collage[variant="3b"] .photo:nth-child(1) { --w:309px; --h:412px; --x:10px;  --y:150px; --r:-5deg; }
+  photo-collage[variant="3b"] .photo:nth-child(2) { --w:200px; --h:268px; --x:350px; --y:10px;  --r:6deg; }
+  photo-collage[variant="3b"] .photo:nth-child(3) { --w:259px; --h:350px; --x:320px; --y:300px; --r:-3.5deg; }
+  /* 2a: one upper-left, one lower-right, overlapping */
+  photo-collage[variant="2a"] .photo:nth-child(1) { --w:270px; --h:360px; --x:50px;  --y:40px;  --r:-5deg; }
+  photo-collage[variant="2a"] .photo:nth-child(2) { --w:310px; --h:414px; --x:260px; --y:230px; --r:5deg; }
+  /* 2b: big upper-right, smaller lower-left */
+  photo-collage[variant="2b"] .photo:nth-child(1) { --w:320px; --h:428px; --x:250px; --y:20px;  --r:4deg; }
+  photo-collage[variant="2b"] .photo:nth-child(2) { --w:230px; --h:308px; --x:40px;  --y:330px; --r:-6deg; }
+  photo-collage[variant^="2"] .photo:nth-child(n+3) { display: none; }
+  photo-collage:not([variant]) .photo { --w:260px; --h:350px; --x:176px; --y:165px; }
+
+  /* ---------- text ---------- */
+  .texts { display: flex; flex-direction: column; gap: 60px; width: 602px; max-width: 100%; }
+  /* <note-card signature="~ Name">Message</note-card> */
+  note-card { display: flex; flex-direction: column; gap: 24px; font-size: 24px; line-height: 1.4; }
+  note-card .note-text { margin: 0; white-space: pre-line; }
+  note-card .face { white-space: nowrap; display: inline-block; }
+  note-card .note-sign { margin: 0; font-weight: 400; text-align: right; }
+
+  /* ---------- playlist ---------- */
+  .playlist {
+    display: flex; flex-direction: column; align-items: center; gap: 56px;
+    padding: 80px 24px 100px; max-width: 700px; margin: 0 auto;
+  }
+  .playlist h2 { font-family: 'Allura', cursive; font-weight: 400; font-size: 56px; line-height: 1.2; color: var(--ink-title); text-align: center; margin-bottom: -16px; }
+  .playlist .cover {
+    width: min(420px, 80vw); aspect-ratio: 1; border: 4px solid #fff; border-radius: 8px; overflow: hidden;
+    box-shadow: var(--photo-shadow); background: #fff; transform: rotate(-3deg);
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .playlist .cover:hover { transform: rotate(0deg) scale(1.03); }
+  .playlist .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .playlist iframe { width: 100%; max-width: 620px; border: 0; border-radius: 12px; box-shadow: var(--photo-shadow); }
+
+  /* ---------- closing ---------- */
+  .closing {
+    min-height: 50vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 80px 24px 120px;
+  }
+  .closing p { font-family: 'Allura', cursive; font-size: 56px; font-weight: 400; line-height: 1.2; color: var(--ink-title); }
+
+  /* ---------- scroll reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity .9s ease, transform .9s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ---------- responsive: scale the collage, stack the rows ---------- */
+  @media (max-width: 1100px) {
+    .note-row, .note-row.flip { flex-direction: column; gap: 40px; padding: 56px 20px; }
+    .note-row.flip { flex-direction: column-reverse; }
+    .texts { width: 100%; max-width: 602px; }
+    note-card { font-size: 20px; }
+  }
+  @media (max-width: 640px) {
+    photo-collage { zoom: .56; }
+    note-card { font-size: 18px; }
+    .hero .to, .closing p, .playlist h2 { font-size: 40px; }
+    .hero .intro { font-size: 28px; }
+    .hero .intro .wide { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="intro-ui" aria-hidden="true">
+  <div class="st-bg"></div>
+  <h2 class="st-title">You've got mail!</h2>
+  <div class="env-back"></div>
+  <div class="flap"></div>
+  <div class="env-front"></div>
+  <div class="st-hint">scroll to open<span>↓</span></div>
+</div>
+<div id="runway"></div>
+<div id="slot"><div id="window"><div id="scaler">
+<div class="bg" aria-hidden="true">
+  <div class="blob white"></div><div class="blob blue"></div><div class="blob lime"></div>
+  <div class="blob blue2"></div><div class="blob white2"></div><div class="blob yellow"></div>
+  <div class="grain"></div>
+</div>
+
+<main>
+  <!-- Hero -->
+  <header class="hero">
+    <p class="to">Dear Danyial,</p>
+    <p class="intro">Thank you for these 2+ years of great work together.<br class="wide"> We wanted to tell you...</p>
+  </header>
+
+  <!-- Wishes (short ones are paired in one section; long ones get their own) -->
+  <section class="note-row reveal">
+    <photo-collage variant="3a"><img src="assets/photos/38.jpg" alt=""><img src="assets/photos/02.jpg" alt=""><img src="assets/photos/03.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Ryan">Danyial, it's been a pleasure working with you! Best of luck with everything. I'm sure you will be great at whatever you decide to focus on! Keep in touch.</note-card>
+      <note-card signature="~ Jasmine">Danyial! You are a walking ray of sunshine. OpenTable won't be the same without you. Please reach out whenever you're in Toronto and I'll show you the good shawarma spots!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="2b"><img src="assets/photos/04.jpg" alt=""><img src="assets/photos/05.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Johnson">Daniyal, we only met once in the Toronto office when we talked about the Android robot plans, but I still remember thinking, “I’d love to work with this guy.” You’re a wonderful presenter, and your energy and the way you shared your vision really stayed with me.
+
+I’m sure wherever you go next, you’ll bring that same positivity to the people around you. Keep shining!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="3a"><img src="assets/photos/07.jpg" alt=""><img src="assets/photos/08.jpg" alt=""><img src="assets/photos/09.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Saman">Hi Danyial, I was sad to hear you're leaving OT. Working with you on Nitro was a real pleasure. You were always clear, supportive, and easy to collaborate with, and I learned a lot from it. I'll miss having you on the team. Wishing you the very best in your next chapter, and I hope our paths cross again soon!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="3b"><img src="assets/photos/10.jpg" alt=""><img src="assets/photos/11.jpg" alt=""><img src="assets/photos/12.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Alex">Danyial.. it's been a great pleasure meeting you! You're the living proof that working hard+great results+having fun can coexist. Take care of yourself and I'm sure your next chapter will be a super successful one! Can't wait for our next truck ride when I'm in Cali</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="2a"><img src="assets/photos/13.jpg" alt=""><img src="assets/photos/14.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Omar">Danyial, good luck with your next chapter! we will miss you! You were such a great product manager and I am glad that we worked together. Wishing you all the best! 🚀</note-card>
+      <note-card signature="~ Basanth">Duuuude, you are a true powerhouse of energy and passion. That drive and enthusiasm make you truly unstoppable, and they have made a lasting impact on the people around you. You will absolutely be missed!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="3b"><img src="assets/photos/15.jpg" alt=""><img src="assets/photos/16.jpg" alt=""><img src="assets/photos/17.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Raul">Danyal, it has been amazing working with you these past two years. You always brought such a great energy to the team that I appreciated so much. I wish you the best of luck in all your future plans, and I hope we do get to see each other soon!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="3a"><img src="assets/photos/18.jpg" alt=""><img src="assets/photos/19.jpg" alt=""><img src="assets/photos/20.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Hugo">I still remember the first day we met at the LA dinner before you officially joined, i can only say tho we didn't hang out a lot i really appreciate the time we shared, the contributions you've made on the team are invaluable, i'll cherish our Toronto adventure, sharing middle eastern food, trying the most random ice cream, eating pomegranate (because gut health), seeing some homess people fight lol. Thanks for everyhing i wish you the best of luck on your new endeavors.</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="3b"><img src="assets/photos/21.jpg" alt=""><img src="assets/photos/22.jpg" alt=""><img src="assets/photos/23.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Alex C.">Just one meeting, one! And we're buds. It was short but so nice to have met you. I hope you the best in your next adventure. Don't be a stranger. Lots of love!</note-card>
+      <note-card signature="~ Devona">Roses are red
+Violets are blue
+I can't believe you're leaving
+It won't be the same without you &lt;3</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="2a"><img src="assets/photos/24.jpg" alt=""><img src="assets/photos/25.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Nick">This one hurts, you have been one of the core pillars of our team and easily the best product manager I have ever had. More than that though, you are just a good person with a positive energy and fun to be around. It won’t be the same without you, but you are incredibly talented and I know you are going on to bigger things and I can’t wait to see them take shape! I truly hope our paths manage to cross each other again in the future, all the best Danyial!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="3b"><img src="assets/photos/26.jpg" alt=""><img src="assets/photos/27.jpg" alt=""><img src="assets/photos/28.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Sarah">Danyial! You're my ride or die forever for real. Before working with you, I had never had a true partner in work who I knew I could depend on. Thank you for coming onto this team and being such a dependable leader. I'm so happy for you in this next phase of your life. Take it easy. The life goals AirTable can wait.</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="3a"><img src="assets/photos/29.jpg" alt=""><img src="assets/photos/30.jpg" alt=""><img src="assets/photos/31.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Scott">It was great to work together for that brief moment in the infancy of the android reboot project. I loved seeing the passion you have for making this part of OpenTable as good as it can be, and allowing it to find its own identity within a very Apple-centric world. Wishing you the best in what comes next!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="3b"><img src="assets/photos/32.jpg" alt=""><img src="assets/photos/33.jpg" alt=""><img src="assets/photos/34.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Jinru">Roses are red
+Violets are blue
+No more gift for Jinru
+<span class="face">(-̩̩̩-̩̩̩-̩̩̩-̩̩̩-̩̩̩__-̩̩̩-̩̩̩-̩̩̩-̩̩̩-̩̩̩)</span>
+
+Danyial, thank you for being a great product partner, a friend, and an amazing person to be around in the past two years. I will never forget all the things we did together. This is not goodbye as I look forward to riding in your Enzo soon!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="2a"><img src="assets/photos/35.jpg" alt=""><img src="assets/photos/36.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Juhi">Danyial!!! Thanks for bringing joy into the workplace and allowing everyone to open up around you! That combined with your killer work ethic has made being on your team a genuine pleasure. Thanks for making offsites so fun from Sandbox VR to late night cookie crawls. Learned a lot from you and always rooting for you! Wish you the best!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="3b"><img src="assets/photos/37.jpg" alt=""><img src="assets/photos/01.jpg" alt=""><img src="assets/photos/39.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ urvashi">Wishing you all the very best on this exciting new journey! Your cheerful personality, positive energy, and enthusiasm have always been contagious. It's been a pleasure working with you! Good luck with your entrepreneurial adventure — I'm sure you'll do amazing things! 🎉🚀</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="2a"><img src="assets/photos/40.jpg" alt=""><img src="assets/photos/41.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Abbigail">I don't even know what to say. Just know that this is a c'ya later, NOT a goodbye. I won't allow it otherwise!! So get ready for me and Will to be visiting soon!</note-card>
+      <note-card signature="~ Diana">Can't believe you're leaving us! But I wish you all the best, and looking forward to more snowboarding and LA fun with you! Stay in touch, we'll miss you!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="2b"><img src="assets/photos/43.jpg" alt=""><img src="assets/photos/44.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Akila">Hey Danyial it was so amazing being a part of Niro with you as my introduction to OpenTable. It was awesome to learn so much from and about you. I know that your future is exactly where you need to be I wish you al lthe beest. Hope to meet again in someway, shape or form. Thank you!</note-card>
+    </div>
+  </section>
+
+  <section class="note-row reveal">
+    <photo-collage variant="2a"><img src="assets/photos/46.jpg" alt=""><img src="assets/photos/47.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card>Danyial! My forever favourite PM. No one else will be able to compare to you! No only have you been an amazing product partner, but you have been a true friend. Thank you for fostering the beautiful family that nitro has grown into, and for always believing and trusting in me. I am so grateful. I can’t wait to see what amazing things you accomplish in the future. You always have a cheerleader in me!!!! Wishing you all the best for the future ❤️❤️❤️ Don’t be a stranger. Love Liz xx</note-card>
+    </div>
+  </section>
+
+  <section class="note-row flip reveal">
+    <photo-collage variant="2b"><img src="assets/photos/42.jpg" alt=""><img src="assets/photos/45.jpg" alt=""></photo-collage>
+    <div class="texts">
+      <note-card signature="~ Anastasiia">Danyial your energy is electric, your optimism is aspiring, your dedication is admirable! Thank you for all the great work together, the support and believe in me! Please preserve the kindness and softness of your heart to whatever world you build. I’m sure you are capable of amazing achievements. I wish you all the best: the luck, the strength, the people you need to get where you’d like to be! Hope to see you in Toronto soon! ❤️</note-card>
+    </div>
+  </section>
+
+  <!-- Playlist intro -->
+  <section class="playlist reveal">
+    <h2>Songs for you</h2>
+    <div class="cover"><img src="assets/playlist-cover.jpg" alt=""></div>
+    <iframe data-testid="embed-iframe" title="Playlist on Spotify" src="https://open.spotify.com/embed/playlist/6kdkSIOykdvoN7b38HN8O2?utm_source=generator&si=8a9603afde17469e" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  </section>
+
+  <footer class="closing reveal">
+    <p>with love, the team!</p>
+  </footer>
+</main>
+</div></div></div>
+
+<script>
+  // <photo-collage variant="3a|3b|2a|2b"> wraps each <img> in a framed .photo
+  customElements.define('photo-collage', class extends HTMLElement {
+    connectedCallback() {
+      if (this.dataset.ready) return;
+      this.dataset.ready = '1';
+      if (!this.hasAttribute('variant')) this.setAttribute('variant', this.querySelectorAll('img').length === 2 ? '2a' : '3a');
+      this.querySelectorAll('img').forEach(img => {
+        const frame = document.createElement('div');
+        frame.className = 'photo';
+        img.replaceWith(frame);
+        frame.append(img);
+        const fit = () => this.fit(frame, img);
+        img.complete && img.naturalWidth ? fit() : img.addEventListener('load', fit, { once: true });
+      });
+    }
+    // Keep each photo's own aspect ratio: reshape the layout slot to the photo's ratio,
+    // keeping roughly the same area and the same centre, and staying inside the collage box.
+    fit(frame, img) {
+      const cs = getComputedStyle(frame), B = 4;
+      const w = parseFloat(cs.width), h = parseFloat(cs.height);
+      const x = parseFloat(cs.left), y = parseFloat(cs.top);
+      const ratio = img.naturalWidth / img.naturalHeight;               // picture ratio
+      let nw = Math.sqrt(w * h * ratio), nh = nw / ratio;               // same area, new shape
+      const cap = Math.min(1.25 * Math.max(w, h) / Math.max(nw, nh), 1); // don't outgrow the slot by >25%
+      nw *= cap; nh *= cap;
+      const W = this.clientWidth || 615, H = this.clientHeight || 680;
+      let nx = x + w / 2 - nw / 2, ny = y + h / 2 - nh / 2;
+      nx = Math.max(-20, Math.min(nx, W - nw + 20)); ny = Math.max(0, Math.min(ny, H - nh));
+      frame.style.setProperty('--w', nw + 'px');
+      frame.style.setProperty('--h', nh + 'px');
+      frame.style.setProperty('--x', nx + 'px');
+      frame.style.setProperty('--y', ny + 'px');
+    }
+  });
+
+  // <note-card signature="~ Ryan">Main text</note-card>
+  customElements.define('note-card', class extends HTMLElement {
+    connectedCallback() {
+      if (this.dataset.ready) return;
+      this.dataset.ready = '1';
+      const text = document.createElement('p');
+      text.className = 'note-text';
+      text.append(...this.childNodes);
+      this.append(text);
+      const name = this.getAttribute('signature');
+      if (name) {                       // no signature attribute = no signature line
+        const sign = document.createElement('p');
+        sign.className = 'note-sign';
+        sign.textContent = name;
+        this.append(sign);
+      }
+    }
+  });
+
+  // Fade sections in as they scroll into view
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ---------- envelope intro: scroll progress drives the whole animation ----------
+  (() => {
+    const root = document.documentElement;
+    if (!root.classList.contains('intro-on')) return;
+    const win = document.getElementById('window'), scaler = document.getElementById('scaler');
+    const slot = document.getElementById('slot'), runway = document.getElementById('runway');
+    const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+    const ease = t => t * t * (3 - 2 * t);
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const mix = (r, q, t) => ({ l: lerp(r.l, q.l, t), t: lerp(r.t, q.t, t), w: lerp(r.w, q.w, t), h: lerp(r.h, q.h, t) });
+    let vw, vh, R, geo, done = false;
+    document.querySelector('.note-row')?.classList.add('in');   // first section is visible in the preview
+
+    function measure() {
+      vw = root.clientWidth; vh = innerHeight; R = vh * 4.2;
+      runway.style.height = R + 'px';
+      let EW = vw < 720 ? vw * 0.8 : Math.min(600, vw * 0.44);
+      EW = Math.min(EW, vh * 0.8);
+      const EH = EW * 0.71;
+      geo = { EW, EH, ex: (vw - EW) / 2, ey: vh * 0.56 - EH / 2 };
+      scaler.style.width = vw + 'px';
+      if (!done) slot.style.height = scaler.offsetHeight + 'px';
+      render();
+    }
+
+    function render() {
+      const p = clamp(scrollY / R);
+      if (p >= 1) {                       // hand over to the normal page
+        if (!done) { done = true; root.classList.add('intro-done'); win.style.cssText = ''; scaler.style.transform = ''; scaler.style.removeProperty('--bgh'); slot.style.height = ''; }
+        return;
+      }
+      if (done) { slot.style.height = scaler.offsetHeight + 'px'; done = false; root.classList.remove('intro-done'); }
+      const { EW, EH, ex, ey } = geo;
+      const t1 = ease(clamp(p / 0.18));                 // flap opens
+      const t2 = ease(clamp((p - 0.14) / 0.22));        // card slides up out of the envelope
+      const t3 = ease(clamp((p - 0.34) / 0.66));        // preview rises and grows to the full page
+      const set = (k, v) => root.style.setProperty(k, v);
+      const fa = 180 * t1;
+      set('--fa', fa + 'deg'); set('--fz', fa > 90 ? 2 : 6); set('--fc', fa > 90 ? '#cdbfac' : '#e4dacc');
+      // the envelope grows with the page until its top corners reach the bottom corners of the screen, fading out as it goes
+      const W = lerp(EW, vw, t3), H = W * 0.71;
+      set('--ex', (vw - W) / 2 + 'px'); set('--ey', lerp(ey, vh, t3) + 'px'); set('--ew', W + 'px'); set('--eh', H + 'px');
+      set('--ty', ey + 'px'); set('--teh', EH + 'px');
+      set('--eo', 1);
+      set('--to', 1 - clamp(p / 0.1)); set('--bgo', 1 - clamp((p - 0.75) / 0.2));
+      const w0 = EW * 0.7, l0 = (vw - w0) / 2;
+      const r0 = { l: l0, t: ey + 0.06 * EH, w: w0, h: EW * 0.62 };      // card resting inside the envelope
+      const r1 = { l: l0, t: ey - 0.35 * EW, w: w0, h: EH + 0.35 * EW };       // card peeking out of it
+      const full = { l: 0, t: 0, w: vw, h: vh };
+      const r = mix(mix(r0, r1, t2), full, t3);
+      // the card must always reach down to the tip of the envelope's V-shaped front, so nothing shows through
+      const tip = lerp(ey, vh, t3) + 0.5 * H;
+      r.h = Math.max(r.t + r.h, Math.min(tip, vh)) - r.t;
+      scaler.style.setProperty('--bgh', (r.h / (r.w / vw)) + 'px');   // page background covers the whole card
+      win.style.cssText = `left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;border-radius:${lerp(4, 0, t3)}px`;
+      scaler.style.transform = `scale(${r.w / vw})`;
+      root.classList.add('intro-ready');
+    }
+
+    let ticking = false;
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { render(); ticking = false; }); } }, { passive: true });
+    addEventListener('resize', measure);
+    new ResizeObserver(() => { if (!done) slot.style.height = scaler.offsetHeight + 'px'; }).observe(scaler);
+    measure();
+  })();
+</script>
+</body>
+</html>
